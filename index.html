@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDFForge · instant PDF generator</title>
+  <!-- modern font, clean icons (font awesome free) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f8fafd;
+      color: #17212b;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* header / nav */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 0;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #0b1f33;
+    }
+
+    .logo i {
+      color: #3b82f6;
+      font-size: 2.2rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-weight: 500;
+      color: #2e445e;
+    }
+
+    .nav-links a:hover {
+      color: #0b1f33;
+    }
+
+    .btn-outline {
+      border: 1.5px solid #b5c8dd;
+      border-radius: 40px;
+      padding: 0.5rem 1.5rem;
+      background: transparent;
+      font-weight: 600;
+      color: #1e3a5f;
+    }
+
+    .btn-outline:hover {
+      background: #e3ecf5;
+      border-color: #809ab3;
+    }
+
+    /* hero section */
+    .hero {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 3rem;
+      padding: 3rem 0 2rem 0;
+    }
+
+    .hero-content {
+      flex: 1 1 400px;
+    }
+
+    .hero-content h1 {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: #0b1f33;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-highlight {
+      color: #3b82f6;
+      border-bottom: 4px solid #3b82f630;
+    }
+
+    .hero-description {
+      font-size: 1.2rem;
+      color: #3f556b;
+      max-width: 550px;
+      margin-bottom: 2.2rem;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: #0b1f33;
+      color: white;
+      border: none;
+      padding: 0.9rem 2.8rem;
+      border-radius: 60px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 20px 30px -10px #0b1f3360;
+      cursor: pointer;
+      transition: 0.15s;
+      text-decoration: none;
+    }
+
+    .btn-primary i {
+      font-size: 1.3rem;
+    }
+
+    .btn-primary:hover {
+      background: #1e3f62;
+      transform: scale(1.02);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #0b1f33;
+      border: 1.5px solid #cbdae9;
+      padding: 0.9rem 2.5rem;
+      border-radius: 60px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: 0.15s;
+      text-decoration: none;
+    }
+
+    .btn-secondary:hover {
+      background: #f1f7ff;
+      border-color: #8ba9cc;
+    }
+
+    .hero-visual {
+      flex: 1 1 400px;
+      background: linear-gradient(145deg, #ffffff, #f2f8ff);
+      border-radius: 3rem;
+      padding: 2rem 1.5rem;
+      box-shadow: 0 30px 40px -20px rgba(0,30,60,0.3);
+      border: 1px solid #e7edf6;
+      transform: rotate(1deg);
+    }
+
+    .mock-card {
+      background: #f4f0ff;
+      color: #121826;
+      padding: 2rem;
+      border-radius: 2.5rem;
+      font-family: 'Inter', sans-serif;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    .mock-card h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .mock-card h3 {
+      font-size: 1.2rem;
+      font-weight: 400;
+      opacity: 0.7;
+      margin-bottom: 1.2rem;
+    }
+
+    .mock-tag {
+      background: white;
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      display: inline-block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    /* feature section */
+    .section-title {
+      text-align: center;
+      font-size: 2.4rem;
+      font-weight: 600;
+      color: #0b1f33;
+      margin: 3rem 0 1rem 0;
+    }
+
+    .section-sub {
+      text-align: center;
+      color: #4f658d;
+      max-width: 700px;
+      margin: 0 auto 3rem auto;
+      font-size: 1.2rem;
+    }
+
+    .feature-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+      margin: 3rem 0;
+    }
+
+    .feature-card {
+      background: white;
+      border-radius: 2rem;
+      padding: 2rem 1.8rem;
+      flex: 1 1 240px;
+      max-width: 300px;
+      box-shadow: 0 12px 30px -10px rgba(0,20,40,0.1);
+      border: 1px solid #e9eef5;
+      transition: 0.15s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 25px 35px -12px #1e3f6240;
+    }
+
+    .feature-icon {
+      background: #e3efff;
+      width: 60px;
+      height: 60px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: #1e3f62;
+      margin-bottom: 1.5rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-card p {
+      color: #446688;
+    }
+
+    /* how it works */
+    .steps {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+      margin: 4rem 0;
+    }
+
+    .step {
+      flex: 1 1 180px;
+      max-width: 240px;
+      text-align: center;
+    }
+
+    .step-number {
+      background: #0b1f33;
+      color: white;
+      width: 48px;
+      height: 48px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      border-radius: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.2rem;
+    }
+
+    .step h4 {
+      font-size: 1.4rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .step p {
+      color: #4f658d;
+    }
+
+    /* CTA banner */
+    .cta-banner {
+      background: #0b1f33;
+      border-radius: 3rem;
+      padding: 4rem 3rem;
+      color: white;
+      text-align: center;
+      margin: 4rem 0;
+    }
+
+    .cta-banner h2 {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .cta-banner p {
+      font-size: 1.2rem;
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+      opacity: 0.85;
+    }
+
+    .cta-banner .btn-primary {
+      background: white;
+      color: #0b1f33;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+
+    .cta-banner .btn-primary:hover {
+      background: #f0f4fe;
+    }
+
+    /* footer */
+    .footer {
+      border-top: 1px solid #d4e0ec;
+      padding: 2rem 0;
+      margin-top: 4rem;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      color: #4f658d;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .footer-links a {
+      text-decoration: none;
+      color: #2e445e;
+    }
+
+    /* responsive */
+    @media (max-width: 700px) {
+      .navbar { flex-direction: column; align-items: flex-start; }
+      .hero-cta .btn-primary, .hero-cta .btn-secondary { width: 100%; justify-content: center; }
+      .cta-banner { padding: 3rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- navigation -->
+    <nav class="navbar">
+      <div class="logo">
+        <i class="fas fa-file-pdf"></i> 
+        <span>PDFForge</span>
+      </div>
+      <div class="nav-links">
+        <a href="#">Features</a>
+        <a href="#">How it works</a>
+        <a href="#">Pricing</a>
+        <a href="#" class="btn-outline"><i class="far fa-user"></i> Sign in</a>
+      </div>
+    </nav>
+
+    <!-- hero -->
+    <div class="hero">
+      <div class="hero-content">
+        <h1>
+          Turn any idea into a <span class="hero-highlight">polished PDF</span> in seconds.
+        </h1>
+        <p class="hero-description">
+          Design, tweak, and download beautiful PDF documents directly from your browser. No sign‑up, no print dialogs – just pure simplicity.
+        </p>
+        <div class="hero-cta">
+          <a href="#" class="btn-primary" id="goToToolBtn"><i class="fas fa-bolt"></i> Launch generator</a>
+          <a href="#" class="btn-secondary"><i class="far fa-play-circle"></i> See how it works</a>
+        </div>
+        <p style="margin-top: 2rem; color: #5f7794; display: flex; gap: 1.5rem; flex-wrap: wrap;">
+          <span><i class="fas fa-check-circle" style="color:#3b82f6;"></i> 100% client-side</span>
+          <span><i class="fas fa-check-circle" style="color:#3b82f6;"></i> No watermarks</span>
+          <span><i class="fas fa-check-circle" style="color:#3b82f6;"></i> Responsive preview</span>
+        </p>
+      </div>
+      <div class="hero-visual">
+        <div class="mock-card" style="background: #eff6ff; color: #0b1f33;">
+          <h2>Q2 Report</h2>
+          <h3>design preview</h3>
+          <p style="margin: 1rem 0;">Numbers don't lie – 87% growth in UX.</p>
+          <span class="mock-tag"><i class="far fa-clock"></i> just adjusted</span>
+        </div>
+        <p style="margin-top: 1.2rem; display: flex; gap: 10px; align-items: center; color: #2a4b74;"><i class="fas fa-sync-alt fa-spin" style="color:#3b82f6;"></i> live preview – instant update</p>
+      </div>
+    </div>
+
+    <!-- feature section -->
+    <h2 class="section-title">Crafted for simplicity & speed</h2>
+    <p class="section-sub">Everything you need to generate a pixel‑perfect PDF, without the clutter.</p>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-paint-brush"></i></div>
+        <h3>Live styling</h3>
+        <p>Colors, fonts, spacing – all updated in real time. See exactly what you get.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-download"></i></div>
+        <h3>One‑click PDF</h3>
+        <p>No print dialog. Uses canvas + jsPDF to create a clean, vector‑like file.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
+        <h3>Responsive UI</h3>
+        <p>Works on desktop, tablet, and mobile. The preview adapts beautifully.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-undo-alt"></i></div>
+        <h3>Instant reset</h3>
+        <p>One click brings back the default design – great for experimentation.</p>
+      </div>
+    </div>
+
+    <!-- how it works (simple steps) -->
+    <h2 class="section-title">Three clicks to your PDF</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4>Customize</h4>
+        <p>Edit text, pick colors, slide the padding.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h4>Preview</h4>
+        <p>Watch the card change as you tweak.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <h4>Download</h4>
+        <p>Hit “download PDF” – it’s ready instantly.</p>
+      </div>
+    </div>
+
+    <!-- call to action -->
+    <div class="cta-banner">
+      <h2>Start forging your PDF now</h2>
+      <p>Join thousands who create clean documents without leaving the browser.</p>
+      <a href="pdf-gena.html" class="btn-primary" id="ctaToolBtn"><i class="fas fa-magic"></i> Open PDF generator</a>
+      <p style="margin-top: 1.5rem; font-size: 0.95rem; opacity: 0.7;">Free · no registration · works offline</p>
+    </div>
+
+    <!-- footer -->
+    <footer class="footer">
+      <span>© 2025 PDFForge — simple, client‑side PDF generation.</span>
+      <div class="footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#"><i class="fab fa-github"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- dummy link to actual tool – in real scenario you replace # with tool.html or modal -->
+  <script>
+    // Both CTA buttons point to the same location – we can simulate or open tool.
+    // For demonstration, we show an alert and mention that in real deployment it would link.
+    document.querySelectorAll('#goToToolBtn, #ctaToolBtn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        alert('✨ The full interactive PDF generator would open here.\n\n(On a real site, you’d link to the tool page or show it in a modal.)\n\nCheck the separate index.html for the actual tool code.');
+      });
+    });
+  </script>
+</body>
+</html>
