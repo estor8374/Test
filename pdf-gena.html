@@ -1,662 +1,512 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Q&A Builder: HTML + PDF</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF generator · direct download | proper UI</title>
+  <!-- fonts & basic styling -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz@0,14..32;1,14..32&family=Merriweather&family=Source+Code+Pro&display=swap" rel="stylesheet">
+  <!-- html2canvas & jspdf from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-            background: #f4f6fa;
-            padding: 2rem 1rem;
-        }
+    body {
+      background: #f0f4f9;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+    .tool-container {
+      max-width: 1400px;
+      width: 100%;
+      background: white;
+      border-radius: 2.5rem;
+      box-shadow: 0 30px 60px rgba(0, 10, 30, 0.2);
+      padding: 2rem;
+    }
 
-        h1 {
-            font-size: 2rem;
-            font-weight: 600;
-            color: #1e293b;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
+    h1 {
+      font-size: clamp(2rem, 6vw, 3rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #0b1f33;
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-        .builder-card, .preview-card {
-            background: white;
-            border-radius: 24px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
+    .subhead {
+      color: #4f658d;
+      margin-bottom: 2rem;
+      font-size: 1rem;
+      border-left: 5px solid #3b82f6;
+      padding-left: 1.2rem;
+    }
 
-        .builder-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1.5rem;
-        }
+    .dashboard {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
 
-        .badge {
-            background: #e2e8f0;
-            color: #334155;
-            padding: 0.25rem 0.75rem;
-            border-radius: 100px;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
+    .control-panel {
+      flex: 1 1 360px;
+      background: #f9fcff;
+      border-radius: 2rem;
+      padding: 2rem 1.8rem;
+      box-shadow: inset 0 1px 5px rgba(0,0,0,0.02), 0 8px 18px rgba(0,20,50,0.05);
+    }
 
-        .qa-pair {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            position: relative;
-        }
+    .preview-area {
+      flex: 2 1 500px;
+      display: flex;
+      flex-direction: column;
+    }
 
-        .pair-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 1.2rem;
+    }
 
-        .pair-number {
-            font-weight: 600;
-            color: #0f172a;
-        }
+    .preview-header h2 {
+      font-weight: 500;
+      color: #1e2b3c;
+    }
 
-        .remove-btn {
-            background: none;
-            border: none;
-            color: #94a3b8;
-            font-size: 1.5rem;
-            cursor: pointer;
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .remove-btn:hover {
-            background: #fee2e2;
-            color: #ef4444;
-        }
+    .generate-btn {
+      background: #0b1f33;
+      border: none;
+      color: white;
+      padding: 0.8rem 2.5rem;
+      border-radius: 40px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      box-shadow: 0 10px 18px -8px #0b1f33b0;
+      transition: 0.15s;
+      border: 1px solid #ffffff30;
+    }
 
-        .form-group {
-            margin-bottom: 1rem;
-        }
+    .generate-btn:hover {
+      background: #1e3f62;
+      transform: scale(1.02);
+    }
 
-        label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #475569;
-            margin-bottom: 0.25rem;
-        }
+    .generate-btn:active {
+      transform: scale(0.98);
+    }
 
-        input, textarea {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 14px;
-            font-size: 1rem;
-            transition: 0.2s;
-        }
-        input:focus, textarea:focus {
-            border-color: #3b82f6;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
-        }
+    .card-preview {
+      background: #ffffff;
+      border-radius: 2rem;
+      box-shadow: 0 20px 35px -5px rgba(0,0,0,0.15);
+      padding: 2rem;
+      border: 1px solid #eef2f6;
+      transition: all 0.2s;
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
 
-        textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
+    #previewCard h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+    }
 
-        .button-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
+    #previewCard h3 {
+      font-size: 1.5rem;
+      font-weight: 400;
+      margin-bottom: 1.2rem;
+      opacity: 0.8;
+    }
 
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 14px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: 0.2s;
-            flex: 1 1 auto;
-        }
+    #previewCard p {
+      font-size: 1.2rem;
+      line-height: 1.5;
+    }
 
-        .btn-primary {
-            background: #3b82f6;
-            color: white;
-        }
-        .btn-primary:hover {
-            background: #2563eb;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px -8px #3b82f6;
-        }
+    /* form elements */
+    .control-group {
+      margin-bottom: 2rem;
+    }
 
-        .btn-success {
-            background: #10b981;
-            color: white;
-        }
-        .btn-success:hover {
-            background: #059669;
-            transform: translateY(-2px);
-        }
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      color: #2c3f5c;
+      font-weight: 500;
+    }
 
-        .btn-outline {
-            background: white;
-            border: 1px solid #cbd5e1;
-            color: #334155;
-        }
-        .btn-outline:hover {
-            background: #f1f5f9;
-        }
+    .label-row span:first-child {
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      color: #5f748e;
+    }
 
-        .preview-box {
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
+    .value-badge {
+      background: #e2eaf3;
+      padding: 0.2rem 1rem;
+      border-radius: 30px;
+      font-size: 0.9rem;
+    }
 
-        .preview-item {
-            background: white;
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border: 1px solid #e2e8f0;
-        }
+    input, textarea, select {
+      width: 100%;
+      padding: 0.9rem 1.5rem;
+      border: 1px solid #cfddee;
+      border-radius: 60px;
+      font-size: 1rem;
+      background: white;
+      transition: 0.2s;
+      font-family: inherit;
+    }
 
-        .preview-q {
-            font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 0.5rem;
-        }
-        .preview-a {
-            color: #334155;
-            border-left: 3px solid #10b981;
-            padding-left: 1rem;
-            margin-top: 0.5rem;
-        }
+    textarea {
+      border-radius: 1.8rem;
+      resize: vertical;
+    }
 
-        .code-display {
-            background: #1e1e1e;
-            color: #d4d4d4;
-            padding: 1.5rem;
-            border-radius: 16px;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.85rem;
-            overflow-x: auto;
-            max-height: 400px;
-        }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 4px #3b82f620;
+    }
 
-        .footer-note {
-            text-align: center;
-            color: #64748b;
-            margin-top: 2rem;
-        }
-    </style>
+    .color-duo {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .color-picker {
+      flex: 1 1 130px;
+    }
+
+    .color-picker label {
+      font-size: 0.85rem;
+      color: #5f748e;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .color-picker input[type="color"] {
+      width: 100%;
+      height: 50px;
+      border-radius: 50px;
+      padding: 0.2rem;
+      background: white;
+      cursor: pointer;
+    }
+
+    input[type=range] {
+      padding: 0;
+      height: 8px;
+      background: #dae3ed;
+      border-radius: 20px;
+      -webkit-appearance: none;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      background: #0b1f33;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 4px 8px #0b1f3370;
+      cursor: pointer;
+      margin-top: -7px;
+    }
+
+    .reset-btn {
+      background: transparent;
+      border: 1.5px solid #b9cbdf;
+      color: #1e3f62;
+      padding: 0.75rem;
+      border-radius: 60px;
+      font-weight: 600;
+      width: 100%;
+      cursor: pointer;
+      transition: 0.15s;
+      margin-top: 1rem;
+    }
+
+    .reset-btn:hover {
+      background: #e1ebf7;
+      border-color: #809ab3;
+    }
+
+    /* loading overlay */
+    #loadingIndicator {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-left: 15px;
+      color: #1e3f62;
+      font-weight: 500;
+    }
+
+    #loadingIndicator .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid #ccc;
+      border-top-color: #0b1f33;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 650px) {
+      body { padding: 0.8rem; }
+      .tool-container { padding: 1.5rem; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>⚡ Q&A Builder: HTML + PDF</h1>
+<div class="tool-container">
+  <h1>📄 PDF generator · direct download</h1>
+  <div class="subhead">tweak styles & content → click “download PDF” → image‑based, high‑quality</div>
 
-        <!-- Builder -->
-        <div class="builder-card">
-            <div class="builder-header">
-                <h2>Create your Q&A set</h2>
-                <span class="badge" id="pairCount">0 pairs</span>
-            </div>
-            <div id="qaPairsContainer"></div>
-            <button class="btn btn-outline" onclick="addQAPair()">➕ Add new Q&A</button>
+  <div class="dashboard">
+    <!-- controls -->
+    <div class="control-panel">
+      <div class="control-group">
+        <div class="label-row"><span>📌 title</span></div>
+        <input type="text" id="titleInput" value="Responsive PDF" placeholder="e.g. Q3 Report">
+      </div>
 
-            <div class="button-group">
-                <button class="btn btn-primary" onclick="generateCode()">
-                    🔄 Generate HTML
-                </button>
-                <button class="btn btn-success" onclick="previewInNewTab()">
-                    👁️ Preview HTML (interactive)
-                </button>
-                <button class="btn btn-outline" onclick="downloadHTML()">
-                    ⬇️ Download .html
-                </button>
-                <button class="btn btn-outline" onclick="downloadPDF()">
-                    📄 Download PDF (no buttons)
-                </button>
-            </div>
+      <div class="control-group">
+        <div class="label-row"><span>🔖 subtitle</span></div>
+        <input type="text" id="subtitleInput" value="designed with care" placeholder="subtitle">
+      </div>
+
+      <div class="control-group">
+        <div class="label-row"><span>✍️ body text</span></div>
+        <textarea id="bodyInput" rows="3">This PDF was generated directly from the DOM. No print dialog needed – just click and save.</textarea>
+      </div>
+
+      <div class="color-duo">
+        <div class="color-picker">
+          <label>🎨 background</label>
+          <input type="color" id="bgColorInput" value="#f6f2ff">
         </div>
-
-        <!-- Preview -->
-        <div class="preview-card">
-            <h2>Preview (static)</h2>
-            <div id="staticPreview" class="preview-box">
-                <p style="color:#64748b; text-align:center;">No pairs yet.</p>
-            </div>
-
-            <h2 style="margin-top: 2rem;">Generated HTML code</h2>
-            <div id="htmlCode" class="code-display">
-                &lt;!-- Click "Generate HTML" to see code --&gt;
-            </div>
+        <div class="color-picker">
+          <label>✒️ text color</label>
+          <input type="color" id="textColorInput" value="#121826">
         </div>
+      </div>
 
-        <div class="footer-note">
-            ✅ PDF output shows all questions and answers (no hide buttons).
+      <div class="control-group" style="margin-top: 1.8rem;">
+        <div class="label-row"><span>🔤 font family</span></div>
+        <select id="fontSelect">
+          <option value="Inter, sans-serif" selected>Sans (Inter)</option>
+          <option value="Merriweather, serif">Serif (Merriweather)</option>
+          <option value="'Source Code Pro', monospace">Monospace</option>
+          <option value="system-ui, sans-serif">System UI</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <div class="label-row">
+          <span>⬜ inner padding</span>
+          <span class="value-badge" id="paddingValue">32px</span>
         </div>
+        <input type="range" id="paddingSlider" min="12" max="80" value="32" step="1">
+      </div>
+
+      <button class="reset-btn" id="resetBtn">↻ reset to default</button>
     </div>
 
-    <script>
-        // ========== MANAGING QA PAIRS ==========
-        let pairCounter = 0;
-        const container = document.getElementById('qaPairsContainer');
+    <!-- preview + download -->
+    <div class="preview-area">
+      <div class="preview-header">
+        <h2>👀 live preview</h2>
+        <button class="generate-btn" id="downloadPdfBtn">
+          ⬇ download PDF
+          <span id="loadingIndicator"><span class="spinner"></span> rendering...</span>
+        </button>
+      </div>
 
-        function addQAPair(question = '', answer = '') {
-            pairCounter++;
-            const id = `pair-${pairCounter}`;
-            const div = document.createElement('div');
-            div.className = 'qa-pair';
-            div.id = id;
-            div.innerHTML = `
-                <div class="pair-header">
-                    <span class="pair-number">Q&A #${pairCounter}</span>
-                    <button class="remove-btn" onclick="removePair('${id}')" title="Remove">✕</button>
-                </div>
-                <div class="form-group">
-                    <label for="q-${pairCounter}">Question</label>
-                    <input type="text" id="q-${pairCounter}" class="q-input" value="${escapeAttr(question)}" placeholder="e.g., What is React?">
-                </div>
-                <div class="form-group">
-                    <label for="a-${pairCounter}">Answer</label>
-                    <textarea id="a-${pairCounter}" class="a-input" placeholder="e.g., React is a JavaScript library...">${escapeTextarea(answer)}</textarea>
-                </div>
-            `;
-            container.appendChild(div);
-            updateCounter();
-        }
-
-        function removePair(id) {
-            document.getElementById(id)?.remove();
-            renumberPairs();
-        }
-
-        function renumberPairs() {
-            const pairs = document.querySelectorAll('.qa-pair');
-            pairs.forEach((pair, idx) => {
-                const newNum = idx + 1;
-                pair.id = `pair-${newNum}`;
-                pair.querySelector('.pair-number').textContent = `Q&A #${newNum}`;
-                pair.querySelector('.remove-btn').setAttribute('onclick', `removePair('pair-${newNum}')`);
-                pair.querySelector('.q-input').id = `q-${newNum}`;
-                pair.querySelector('.a-input').id = `a-${newNum}`;
-            });
-            pairCounter = pairs.length;
-            updateCounter();
-        }
-
-        function updateCounter() {
-            document.getElementById('pairCount').innerText = `${pairCounter} pair${pairCounter !== 1 ? 's' : ''}`;
-        }
-
-        function escapeAttr(str) {
-            if (!str) return '';
-            return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-        }
-
-        function escapeTextarea(str) {
-            if (!str) return '';
-            return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        }
-
-        function getAllPairs() {
-            const pairs = [];
-            const questions = document.querySelectorAll('.q-input');
-            const answers = document.querySelectorAll('.a-input');
-            for (let i = 0; i < questions.length; i++) {
-                const q = questions[i].value.trim();
-                const a = answers[i].value.trim();
-                if (q || a) {
-                    pairs.push({ q, a });
-                }
-            }
-            return pairs;
-        }
-
-        // ========== GENERATING INTERACTIVE HTML (with show buttons) ==========
-        function generateInteractiveHTML(pairs) {
-            if (!pairs.length) return '<p>No content</p>';
-
-            const items = pairs.map((p, idx) => {
-                const safeQ = p.q.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-                const safeA = p.a.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-                return {
-                    id: `qa-${idx}`,
-                    q: safeQ || 'Question',
-                    a: safeA || 'No answer provided.'
-                };
-            });
-
-            let itemsHTML = '';
-            items.forEach(item => {
-                itemsHTML += `
-                <div class="qa-item">
-                    <div class="question" data-target="${item.id}">
-                        <span class="q-badge">Q</span>
-                        <span>${item.q}</span>
-                        <button class="show-btn" data-target="${item.id}">Show Answer</button>
-                    </div>
-                    <div id="${item.id}" class="answer hidden">
-                        <span class="a-badge">A</span>
-                        <span>${item.a}</span>
-                    </div>
-                </div>`;
-            });
-
-            return `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Q&A</title>
-    <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background: linear-gradient(145deg, #f1f5f9 0%, #e4eaf1 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-        }
-        .card {
-            max-width: 800px;
-            width: 100%;
-            background: white;
-            border-radius: 36px;
-            padding: 2.5rem;
-            box-shadow: 0 30px 50px -20px rgba(0,0,0,0.3);
-        }
-        h1 {
-            text-align: center;
-            color: #1e293b;
-            margin-bottom: 2rem;
-            font-weight: 600;
-            font-size: 2.2rem;
-        }
-        .qa-item {
-            background: #f8fafc;
-            border-radius: 24px;
-            margin-bottom: 1rem;
-            border: 1px solid #e2e8f0;
-            overflow: hidden;
-        }
-        .question {
-            background: white;
-            padding: 1.25rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            cursor: pointer;
-            font-weight: 500;
-            color: #0f172a;
-            transition: 0.2s;
-        }
-        .question:hover {
-            background: #f1f5f9;
-        }
-        .q-badge {
-            background: #3b82f6;
-            color: white;
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 0.2rem 0.8rem;
-            border-radius: 40px;
-        }
-        .show-btn {
-            margin-left: auto;
-            background: transparent;
-            border: 1px solid #3b82f6;
-            color: #3b82f6;
-            padding: 0.3rem 1rem;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .show-btn:hover {
-            background: #3b82f6;
-            color: white;
-        }
-        .answer {
-            padding: 1.25rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            background: #f0f9ff;
-            border-top: 1px dashed #b9d4f0;
-            line-height: 1.6;
-            color: #1e293b;
-        }
-        .hidden {
-            display: none;
-        }
-        .a-badge {
-            background: #10b981;
-            color: white;
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 0.2rem 0.8rem;
-            border-radius: 40px;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 2.5rem;
-            color: #64748b;
-            font-size: 0.9rem;
-        }
-    </style>
-</head>
-<body>
-    <div class="card">
-        <h1>📘 Q&A Session</h1>
-        ${itemsHTML}
-        <div class="footer">
-            Click on a question or the button to reveal the answer.
-        </div>
+      <div class="card-preview" id="previewCard" style="background-color: #f6f2ff; color: #121826; padding: 32px; font-family: 'Inter', sans-serif;">
+        <h2 id="previewTitle">Responsive PDF</h2>
+        <h3 id="previewSubtitle">designed with care</h3>
+        <p id="previewBody">This PDF was generated directly from the DOM. No print dialog needed – just click and save.</p>
+      </div>
+      <p style="color: #526e8c; margin-top: 0.8rem; font-size: 0.9rem;">⬆️ PDF will look exactly like this card. Uses canvas + jsPDF.</p>
     </div>
-    <script>
-        document.addEventListener('click', function(e) {
-            const target = e.target.closest('[data-target]');
-            if (!target) return;
-            const answerId = target.getAttribute('data-target');
-            const answerEl = document.getElementById(answerId);
-            if (answerEl) {
-                answerEl.classList.toggle('hidden');
-            }
+  </div>
+</div>
+
+<script>
+  (function() {
+    // --- DOM references
+    const previewCard = document.getElementById('previewCard');
+    const titleEl = document.getElementById('previewTitle');
+    const subtitleEl = document.getElementById('previewSubtitle');
+    const bodyEl = document.getElementById('previewBody');
+
+    const titleInput = document.getElementById('titleInput');
+    const subtitleInput = document.getElementById('subtitleInput');
+    const bodyInput = document.getElementById('bodyInput');
+    const bgColorInput = document.getElementById('bgColorInput');
+    const textColorInput = document.getElementById('textColorInput');
+    const fontSelect = document.getElementById('fontSelect');
+    const paddingSlider = document.getElementById('paddingSlider');
+    const paddingValue = document.getElementById('paddingValue');
+    const resetBtn = document.getElementById('resetBtn');
+    const downloadBtn = document.getElementById('downloadPdfBtn');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+
+    // Default values
+    const defaults = {
+      title: 'Responsive PDF',
+      subtitle: 'designed with care',
+      body: 'This PDF was generated directly from the DOM. No print dialog needed – just click and save.',
+      bgColor: '#f6f2ff',
+      textColor: '#121826',
+      font: 'Inter, sans-serif',
+      padding: 32
+    };
+
+    // --- update preview from inputs
+    function updatePreview() {
+      titleEl.textContent = titleInput.value || '​';   // zero‑width space to preserve height
+      subtitleEl.textContent = subtitleInput.value || '​';
+      bodyEl.textContent = bodyInput.value || '​';
+
+      previewCard.style.backgroundColor = bgColorInput.value;
+      previewCard.style.color = textColorInput.value;
+      previewCard.style.fontFamily = fontSelect.value;
+
+      const pad = paddingSlider.value + 'px';
+      previewCard.style.padding = pad;
+      paddingValue.textContent = paddingSlider.value + 'px';
+    }
+
+    // --- reset to defaults
+    resetBtn.addEventListener('click', function() {
+      titleInput.value = defaults.title;
+      subtitleInput.value = defaults.subtitle;
+      bodyInput.value = defaults.body;
+      bgColorInput.value = defaults.bgColor;
+      textColorInput.value = defaults.textColor;
+      fontSelect.value = defaults.font;
+      paddingSlider.value = defaults.padding;
+      updatePreview();
+    });
+
+    // --- live update on input
+    [titleInput, subtitleInput, bodyInput, bgColorInput, textColorInput, fontSelect, paddingSlider].forEach(el => {
+      el.addEventListener('input', updatePreview);
+    });
+    fontSelect.addEventListener('change', updatePreview); // for safer select
+
+    // --- PDF download (using html2canvas + jsPDF)
+    downloadBtn.addEventListener('click', async function(e) {
+      // show loading indicator inside button
+      loadingIndicator.style.display = 'inline-flex';
+      downloadBtn.disabled = true; // prevent double click
+
+      try {
+        // get the card element
+        const card = document.getElementById('previewCard');
+
+        // Use html2canvas to capture the card with higher scale for quality
+        const canvas = await html2canvas(card, {
+          scale: 2.5,              // high resolution
+          backgroundColor: null,    // respect background color from card
+          allowTaint: false,
+          useCORS: true,
+          logging: false,
+          windowWidth: card.scrollWidth,
+          windowHeight: card.scrollHeight
         });
-    <\/script>
-</body>
-</html>`;
+
+        // get canvas data as JPEG (good compression, small size)
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+        // Create jsPDF instance: we want a PDF with dimensions matching the card's aspect ratio
+        const { jsPDF } = window.jspdf;
+
+        // orientation: portrait or landscape based on card dimensions
+        const cardWidth = card.offsetWidth;
+        const cardHeight = card.offsetHeight;
+        const isLandscape = cardWidth > cardHeight;
+
+        // PDF unit: mm. Choose size that keeps content crisp.
+        // We'll set PDF width to 190mm (with small margins) and adjust height proportionally.
+        let pdfWidth, pdfHeight;
+        if (isLandscape) {
+          pdfWidth = 280; // mm, for landscape (like A4 landscape ~297mm but we keep some margin)
+          pdfHeight = (cardHeight / cardWidth) * pdfWidth;
+        } else {
+          pdfWidth = 200; // mm, roughly A4 width minus margins
+          pdfHeight = (cardHeight / cardWidth) * pdfWidth;
         }
 
-        // ========== GENERATE PDF (print version, no buttons) ==========
-        function generatePrintableHTML(pairs) {
-            if (!pairs.length) return '<p>No content</p>';
+        // Create PDF with custom dimensions
+        const pdf = new jsPDF({
+          orientation: pdfWidth > pdfHeight ? 'landscape' : 'portrait',
+          unit: 'mm',
+          format: [pdfWidth, pdfHeight]
+        });
 
-            let itemsHTML = '';
-            pairs.forEach((p, idx) => {
-                const q = p.q || 'Question';
-                const a = p.a || 'No answer provided.';
-                itemsHTML += `
-                    <div class="qa-print-item">
-                        <div class="print-q"><strong>Q${idx+1}:</strong> ${q}</div>
-                        <div class="print-a"><strong>A:</strong> ${a}</div>
-                    </div>
-                    ${idx < pairs.length-1 ? '<hr>' : ''}
-                `;
-            });
+        // add image to fill the whole page
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
 
-            return `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Q&A PDF</title>
-    <style>
-        body {
-            font-family: 'Helvetica', 'Arial', sans-serif;
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 0 1.5rem;
-            line-height: 1.6;
-            color: #222;
-        }
-        h1 {
-            text-align: center;
-            color: #1e293b;
-            border-bottom: 2px solid #ccc;
-            padding-bottom: 0.5rem;
-        }
-        .qa-print-item {
-            margin: 2rem 0;
-        }
-        .print-q {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 0.5rem;
-        }
-        .print-a {
-            font-size: 1.1rem;
-            color: #334155;
-            margin-left: 1.5rem;
-            padding-left: 1rem;
-            border-left: 4px solid #10b981;
-        }
-        hr {
-            border: none;
-            border-top: 1px dashed #aaa;
-            margin: 1.5rem 0;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 3rem;
-            color: #64748b;
-            font-size: 0.9rem;
-        }
-        @media print {
-            body { margin: 0; }
-        }
-    </style>
-</head>
-<body>
-    <h1>📋 Q&A Summary</h1>
-    ${itemsHTML}
-    <div class="footer">Generated on ${new Date().toLocaleString()}</div>
-</body>
-</html>`;
-        }
+        // Save PDF
+        pdf.save('custom-document.pdf');
+      } catch (error) {
+        console.error('PDF generation error:', error);
+        alert('Sorry, PDF could not be generated. Check console for details.');
+      } finally {
+        loadingIndicator.style.display = 'none';
+        downloadBtn.disabled = false;
+      }
+    });
 
-        // ========== ACTIONS ==========
-        function generateCode() {
-            const pairs = getAllPairs();
-            if (pairs.length === 0) {
-                alert('Add at least one Q&A pair first.');
-                return;
-            }
+    // initial update
+    updatePreview();
 
-            // Update static preview
-            const previewDiv = document.getElementById('staticPreview');
-            let previewHTML = '';
-            pairs.forEach((p, i) => {
-                previewHTML += `
-                    <div class="preview-item">
-                        <div class="preview-q">Q${i+1}: ${escapeTextarea(p.q) || '<em>empty</em>'}</div>
-                        <div class="preview-a">A: ${escapeTextarea(p.a) || '<em>empty</em>'}</div>
-                    </div>
-                `;
-            });
-            previewDiv.innerHTML = previewHTML || '<p style="color:#64748b;">No content</p>';
-
-            // Generate and show code
-            const fullHTML = generateInteractiveHTML(pairs);
-            document.getElementById('htmlCode').innerText = fullHTML;
-        }
-
-        function previewInNewTab() {
-            const pairs = getAllPairs();
-            if (pairs.length === 0) {
-                alert('Add some Q&A first.');
-                return;
-            }
-            const fullHTML = generateInteractiveHTML(pairs);
-            const blob = new Blob([fullHTML], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            window.open(url, '_blank');
-            setTimeout(() => URL.revokeObjectURL(url), 30000);
-        }
-
-        function downloadHTML() {
-            const pairs = getAllPairs();
-            if (pairs.length === 0) {
-                alert('Add some Q&A first.');
-                return;
-            }
-            const fullHTML = generateInteractiveHTML(pairs);
-            const blob = new Blob([fullHTML], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `interactive-qa-${new Date().toISOString().slice(0,10)}.html`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function downloadPDF() {
-            const pairs = getAllPairs();
-            if (pairs.length === 0) {
-                alert('Add some Q&A first.');
-                return;
-            }
-            const printHTML = generatePrintableHTML(pairs);
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(printHTML);
-            printWindow.document.close();
-            printWindow.focus();
-            // Wait for content to load then print
-            printWindow.onload = function() {
-                printWindow.print();
-                // Optionally close after print (user can cancel)
-                // printWindow.onafterprint = () => printWindow.close();
-            };
-        }
-
-        // Initialize with two examples
-        window.onload = () => {
-            addQAPair('What is HTML?', 'HTML (HyperText Markup Language) is the standard markup language for web pages.');
-            addQAPair('What is CSS?', 'CSS (Cascading Style Sheets) describes how HTML elements are to be displayed.');
-            generateCode(); // Show initial preview/code
-        };
-    </script>
+    // Also update preview on window resize (optional) — keeps padding consistent, but not necessary
+    window.addEventListener('resize', function() {
+      // No need to change anything, but we might re-calc? not needed.
+    });
+  })();
+</script>
+<!-- ensure print color adjustment is not needed anymore, but keep for safety -->
+<style>
+  #previewCard {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+</style>
 </body>
 </html>
